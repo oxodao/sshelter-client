@@ -25,15 +25,15 @@ func ExportMachine(prv *services.Provider, machinesList string) {
 	}
 
 	exportedMachines := struct {
-		Machines []models.Machine `yaml:"machines"`
+		Machines []*models.Machine `yaml:"machines"`
 	}{
-		Machines: []models.Machine{},
+		Machines: []*models.Machine{},
 	}
 
 	if machinesList != "all" {
 		for _, machine := range machines {
 			if currentMachine := getMachineInArray(machine, remoteMachines); currentMachine != nil {
-				exportedMachines.Machines = append(exportedMachines.Machines, *currentMachine)
+				exportedMachines.Machines = append(exportedMachines.Machines, currentMachine)
 			}
 		}
 	} else {
@@ -43,6 +43,10 @@ func ExportMachine(prv *services.Provider, machinesList string) {
 	if len(exportedMachines.Machines) == 0 {
 		fmt.Println("No machines found")
 		os.Exit(1)
+	}
+
+	for _, machine := range exportedMachines.Machines {
+		machine.Id = nil
 	}
 
 	str, err := yaml.Marshal(exportedMachines)
@@ -61,10 +65,10 @@ func ExportMachine(prv *services.Provider, machinesList string) {
 	os.Exit(0)
 }
 
-func getMachineInArray(machineName string, machines []models.Machine) *models.Machine {
+func getMachineInArray(machineName string, machines []*models.Machine) *models.Machine {
 	for _, machine := range machines {
 		if machine.Name == machineName {
-			return &machine
+			return machine
 		}
 	}
 
