@@ -7,9 +7,6 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-const VERSION = "0.1"
-const AUTHOR = "Oxodao"
-
 type Config struct {
 	Server        Server        `yaml:"server"`
 	LocalOverride LocalOverride `yaml:"local_override"`

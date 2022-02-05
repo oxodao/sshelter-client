@@ -17,6 +17,7 @@ import (
 	"github.com/ncruces/zenity"
 	"github.com/oxodao/sshelter_client/config"
 	"github.com/oxodao/sshelter_client/models"
+	"github.com/oxodao/sshelter_client/utils"
 )
 
 type Client struct {
@@ -40,7 +41,7 @@ func New(cfg *config.Config, log func(interface{})) (*Client, error) {
 }
 
 func buildUserAgent() string {
-	return "sshelter/" + config.VERSION + " - " + runtime.GOOS + "/" + runtime.GOARCH
+	return "sshelter/" + utils.VERSION + " - " + runtime.GOOS + "/" + runtime.GOARCH
 }
 
 func (c *Client) newRequest(method, path string, body interface{}, authenticated bool) (*http.Request, error) {
@@ -94,8 +95,7 @@ func (c *Client) do(req *http.Request, v interface{}) (*http.Response, error) {
 			return resp, err
 		}
 
-		fmt.Println(msg)
-		return resp, fmt.Errorf("Unexpected status code: %d", resp.StatusCode)
+		return resp, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
 
 	if err != nil {
@@ -279,7 +279,7 @@ func (c *Client) CreateMachine(m *models.Machine) error {
 	}
 
 	if resp.StatusCode != http.StatusCreated {
-		return fmt.Errorf("Unexpected status code: %d", resp.StatusCode)
+		return fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
 
 	return nil
@@ -302,6 +302,29 @@ func (c *Client) DeleteMachine(machine *models.Machine) error {
 	}
 
 	if resp.StatusCode != http.StatusNoContent {
+		return fmt.Errorf("Unexpected status code: %d", resp.StatusCode)
+	}
+
+	return nil
+}
+
+func (c *Client) UpdateMachine(machine *models.Machine) error {
+	err := c.AuthenticateIfRequired()
+	if err != nil {
+		return err
+	}
+
+	req, err := c.authenticatedRequest("PUT", *machine.Id, machine)
+	if err != nil {
+		return err
+	}
+
+	resp, err := c.do(req, nil)
+	if err != nil {
+		return err
+	}
+
+	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("Unexpected status code: %d", resp.StatusCode)
 	}
 

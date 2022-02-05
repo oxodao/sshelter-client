@@ -2,13 +2,20 @@ package cmd
 
 import (
 	"fmt"
-	"os"
+	"strings"
 
-	"github.com/oxodao/sshelter_client/config"
-	"github.com/oxodao/sshelter_client/services"
+	"github.com/oxodao/sshelter_client/utils"
+	"github.com/spf13/cobra"
 )
 
-func Version(prv *services.Provider) {
-	fmt.Printf("SSHelter client version %v by %v\n", config.VERSION, config.AUTHOR)
-	os.Exit(0)
+var versionCmd = &cobra.Command{
+	Use:   "version",
+	Short: "Print the version number of sshelter",
+	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Printf("%v %v (Commit %v) by %v\nhttps://github.com/%v/%v\n", utils.SOFTWARE_NAME, utils.VERSION, utils.COMMIT, utils.AUTHOR, strings.ToLower(utils.AUTHOR), strings.ToLower(utils.SOFTWARE_NAME))
+	},
+}
+
+func registerVersionCommand() {
+	rootCmd.AddCommand(versionCmd)
 }
